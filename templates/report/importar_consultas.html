@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="bi bi-upload"></i> Importar Consultas</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-person-circle"></i> Paciente: <strong>{{ paciente.nombre_completo }}</strong></h6>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-info-circle"></i> Instrucciones:</h6>
+                    <ol class="mb-0">
+                        <li>Descarga la plantilla de ejemplo</li>
+                        <li>Completa los datos (Fecha, Hora Entrada, Hora Salida, Peso, Estatura)</li>
+                        <li>Guarda el archivo en formato .xlsx</li>
+                        <li>Súbelo usando el formulario</li>
+                    </ol>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('report.plantilla_consultas') }}" class="btn btn-outline-success">
+                        <i class="bi bi-download"></i> Descargar Plantilla
+                    </a>
+                </div>
+                
+                <hr>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="archivo" class="form-label">Seleccionar archivo Excel</label>
+                        <input type="file" class="form-control" id="archivo" name="archivo" accept=".xlsx,.xls" required>
+                        <div class="form-text">Formatos aceptados: .xlsx, .xls</div>
+                    </div>
+                    
+                    <div class="alert alert-secondary">
+                        <h6><i class="bi bi-table"></i> Formato esperado:</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Fecha</strong>: DD/MM/AAAA (ej: 15/03/2024)</li>
+                            <li><strong>Hora Entrada</strong>: HH:MM (ej: 10:00)</li>
+                            <li><strong>Hora Salida</strong>: HH:MM (ej: 11:00)</li>
+                            <li><strong>Descripción</strong>: Texto opcional</li>
+                            <li><strong>Peso (kg)</strong>: Número decimal (ej: 70.5)</li>
+                            <li><strong>Estatura (m)</strong>: Número decimal (ej: 1.75)</li>
+                            <li><strong>Diagnóstico</strong>: Texto opcional</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('pacientes.detalle', id=paciente.idPaciente) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-upload"></i> Importar Consultas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Nutrición</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('menu') }}">
+                <i class="bi bi-heart-pulse"></i> NutriApp
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if session.user_id %}
+                <ul class="navbar-nav me-auto">
+                    {% if session.user_rol == 'nutriologo' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('pacientes.lista') }}">
+                            <i class="bi bi-people"></i> Pacientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('planes.lista') }}">
+                            <i class="bi bi-file-earmark-text"></i> Planes
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('youtube.index') }}">
+                             Temas Nutrición
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="mapsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-map text-success"></i> Mapas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('osm.lugares_saludables') }}">
+                                    <i class="bi bi-shop"></i> Lugares Saludables
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('osm.consultorios') }}">
+                                    <i class="bi bi-hospital"></i> Consultorios
+                                </a>
+                            </li>
+                            <!-- <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('osm.index') }}">
+                                    <i class="bi bi-map"></i> Explorar Mapa
+                                </a>
+                            </li> -->
+                        </ul>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('statistics.index') }}">
+                            <i class="bi bi-bar-chart-line"></i> Estadísticas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('payment.index') }}">
+                            <i class="bi bi-cart text-primary"></i> Tienda
+                        </a>
+                    </li>
+                    <!-- <li class="nav-item"> -->
+                        <!-- <a class="nav-link" href="{{ url_for('messenger.chat') }}"> -->
+                            <!-- <i class="bi bi-chat-dots text-primary"></i> Mensajes -->
+                        <!-- </a> -->
+                    <!-- </li> -->
+                        
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ session.user_email }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                    <!-- <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportesDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-file-text"></i> Reportes
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if session.user_rol == 'nutriologo' %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('report.exportar_pacientes') }}">
+                                    <i class="bi bi-file-excel text-success"></i> Exportar Pacientes
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('report.exportar_resumen') }}">
+                                    <i class="bi bi-file-text text-primary"></i> Exportar Resumen
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('report.importar_pacientes') }}">
+                                    <i class="bi bi-upload text-warning"></i> Importar Pacientes
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('report.plantilla_pacientes') }}">
+                                    <i class="bi bi-download text-info"></i> Descargar Plantilla
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% if session.user_rol == 'paciente' %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('report.exportar_consultas', paciente_id=session.paciente_id) }}">
+                                    <i class="bi bi-file-excel text-success"></i> Exportar Mi Historial
+                                </a>
+                            </li> -->
+                            <!-- {% endif %}
+                        </ul>
+                    </li> -->
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="bi bi-cart"></i> Tienda </h1>
+        <p class="lead">Adquiere planes personalizados y recursos digitales</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for plan in planes %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white text-center">
+                <i class="bi {{ plan.icono }} fs-1"></i>
+                <h4 class="mt-2">{{ plan.nombre }}</h4>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-primary">${{ "%.2f"|format(plan.precio) }} MXN</h2>
+                <p class="text-muted">{{ plan.descripcion }}</p>
+                <hr>
+                <ul class="list-unstyled text-start">
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Acceso inmediato</li>
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Soporte incluido</li>
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Descargable</li>
+                </ul>
+                <a href="{{ url_for('payment.checkout', plan_id=plan.id) }}" class="btn btn-primary w-100 mt-3">
+                    <i class="bi bi-cart-plus"></i> Comprar ahora
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <i class="bi bi-shield-check"></i>
+            <strong>Pagos seguros</strong> - Todos los pagos son procesados de forma segura con Stripe.
+        </div>
+    </div>
+</div>
+{% endblock %}

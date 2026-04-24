@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if rol == 'nutriologo' %}
+<div class="row mb-4">
+    <div class="col-md-10">
+        <h1><i class="bi bi-grid"></i> Panel de Control - Nutriólogo</h1>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <!-- <div class="col-md-5">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Pacientes</h5>
+                <h2 class="card-text">{{ total_pacientes }}</h2>
+                <a href="{{ url_for('pacientes.lista') }}" class="text-white">Ver todos <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('pacientes.nuevo') }}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus"></i> Registrar Nuevo Paciente
+                    </a>
+                    <a href="{{ url_for('pacientes.lista') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-people"></i> Ver Todos los Pacientes
+                    </a>
+                    <a href="{{ url_for('planes.lista') }}" class="btn btn-outline-info">
+                        <i class="bi bi-file-earmark-text"></i> Ver Planes Alimenticios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Consultas Hoy</h5>
+                <h2 class="card-text">{{ consultas_hoy }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Planes Activos</h5>
+                <h2 class="card-text">0</h2>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+
+{% else %}
+<!-- Vista para paciente -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="bi bi-person-circle"></i> Mi Perfil - {{ paciente.nombre_completo }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Mi Información</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nombre:</strong> {{ paciente.nombre_completo }}</p>
+                <p><strong>Edad:</strong> {{ paciente.edad }} años</p>
+                <p><strong>Sexo:</strong> {{ paciente.sexo }}</p>
+                <p><strong>Teléfono:</strong> {{ paciente.telefono or 'No especificado' }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        {% if plan_activo %}
+        <div class="card mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Plan Alimenticio Activo</h5>
+            </div>
+            <div class="card-body">
+                <h6>Descripción:</h6>
+                <p>{{ plan_activo.descripcion }}</p>
+                <p><strong>Calorías diarias:</strong> {{ plan_activo.kcalD }} kcal</p>
+                <p><strong>Vigencia:</strong> {{ plan_activo.fechaI.strftime('%d/%m/%Y') }} - {{ plan_activo.fechaF.strftime('%d/%m/%Y') }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Últimas Consultas</h5>
+            </div>
+            <div class="card-body">
+                {% if consultas %}
+                <div class="list-group">
+                    {% for consulta in consultas %}
+                    <a href="{{ url_for('consultas.detalle', id=consulta.idConsulta) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ consulta.fechaConsulta.strftime('%d/%m/%Y') }}</h6>
+                            <small>{{ consulta.horaE.strftime('%H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">{{ consulta.descripcion or 'Sin descripción' }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-muted my-3">No hay consultas registradas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

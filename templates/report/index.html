@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="bi bi-file-excel text-success"></i> Reportes y Exportaciones</h1>
+        <p class="lead">Exporta e importa datos en formato Excel</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Exportar Pacientes -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-download"></i> Exportar Pacientes</h5>
+            </div>
+            <div class="card-body">
+                <p>Exporta todos tus pacientes a un archivo Excel con datos completos.</p>
+                <a href="{{ url_for('report.exportar_pacientes') }}" class="btn btn-success">
+                    <i class="bi bi-file-excel"></i> Exportar Pacientes
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Exportar Resumen -->
+    <!-- <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-file-text"></i> Exportar Resumen</h5>
+            </div>
+            <div class="card-body">
+                <p>Genera un reporte completo con estadísticas y lista de pacientes.</p>
+                <a href="{{ url_for('report.exportar_resumen') }}" class="btn btn-primary">
+                    <i class="bi bi-file-text"></i> Exportar Resumen
+                </a>
+            </div>
+        </div>
+    </div>
+     -->
+    <!-- Importar Pacientes -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-upload"></i> Importar Pacientes</h5>
+            </div>
+            <div class="card-body">
+                <p>Importa pacientes masivamente desde un archivo Excel.</p>
+                <a href="{{ url_for('report.importar_pacientes') }}" class="btn btn-warning">
+                    <i class="bi bi-upload"></i> Importar Pacientes
+                </a>
+                <hr>
+                <a href="{{ url_for('report.plantilla_pacientes') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-download"></i> Descargar Plantilla
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Importar Consultas -->
+    <!-- Sección para importar consultas (requiere seleccionar paciente) -->
+   <div class="col-md-6 mb-4">
+      <div class="card shadow-sm h-100">
+         <div class="card-header bg-info text-white">
+               <h5 class="mb-0"><i class="bi bi-upload"></i> Importar Consultas</h5>
+         </div>
+         <div class="card-body">
+               <p>Importa consultas desde Excel para un paciente específico.</p>
+               <p class="small text-muted">Para importar consultas, primero ve al perfil del paciente y haz clic en "Importar Consultas".</p>
+               <div class="alert alert-info">
+                  <i class="bi bi-lightbulb"></i> <strong>Consejo:</strong>
+                  <ul class="mb-0 mt-2">
+                     <li>Ve a la lista de pacientes</li>
+                     <li>Selecciona un paciente</li>
+                     <li>Haz clic en "Importar Consultas" en su perfil</li>
+                  </ul>
+               </div>
+               <a href="{{ url_for('pacientes.lista') }}" class="btn btn-outline-info">
+                  <i class="bi bi-people"></i> Ir a Pacientes
+               </a>
+         </div>
+      </div>
+   </div>
+
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Formato de archivo recomendado:</strong> Excel (.xlsx). Las plantillas contienen las columnas requeridas para una importación exitosa.
+        </div>
+    </div>
+</div>
+{% endblock %}

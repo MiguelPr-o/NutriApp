@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-graph-up"></i> Mi Progreso</h1>
+        <p class="lead">Comparte tus fotos en Instagram con #MiProgresoNutriApp</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="https://www.instagram.com" target="_blank" class="btn btn-primary">
+            <i class="bi bi-instagram"></i> Subir foto
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {% if posts %}
+        {% for post in posts %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <img src="{{ post.imagen }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+                <div class="card-body">
+                    <p class="small">{{ post.caption[:100] }}</p>
+                    <div class="d-flex justify-content-between">
+                        <small><i class="bi bi-heart text-danger"></i> {{ post.likes }}</small>
+                        <small>{{ post.fecha }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-camera fs-1 text-muted"></i>
+            <p class="mt-3">No hay fotos de progreso aún</p>
+            <p>Comparte tus fotos en Instagram con el hashtag <strong>#MiProgresoNutriApp</strong></p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="alert alert-info mt-3">
+    <i class="bi bi-lightbulb"></i>
+    <strong>Consejo:</strong> Sube fotos de tus comidas, tu evolución física o tus logros. 
+    Etiqueta tus fotos con <strong>#MiProgresoNutriApp</strong> para que aparezcan aquí.
+</div>
+{% endblock %}

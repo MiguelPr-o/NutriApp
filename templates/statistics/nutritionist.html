@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="bi bi-bar-chart-line"></i> Estadísticas   </h1>
+        <p class="lead">Análisis de tus pacientes y tendencias</p>
+    </div>
+</div>
+
+<div id="stats-loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+    <p class="mt-3">Cargando estadísticas...</p>
+</div>
+
+<div id="stats-content" style="display: none;">
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Pacientes</h5>
+                    <h2 class="card-text" id="total-pacientes">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Consultas</h5>
+                    <h2 class="card-text" id="total-consultas">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Edad Promedio</h5>
+                    <h2 class="card-text" id="edad-promedio">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Rango Edad</h5>
+                    <h2 class="card-text" id="rango-edad">0-0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Distribución por Género</h5>
+                </div>
+                <div class="card-body">
+                    <div id="gender-chart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Distribución por Edad</h5>
+                </div>
+                <div class="card-body">
+                    <div id="age-chart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Consultas en los Últimos 30 Días</h5>
+                </div>
+                <div class="card-body">
+                    <div id="consultations-chart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+<script>
+    fetch('/estadisticas/api/nutritionist-stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('stats-loading').style.display = 'none';
+            document.getElementById('stats-content').style.display = 'block';
+            
+            if (data.success) {
+                // Actualizar métricas
+                document.getElementById('total-pacientes').textContent = data.stats.total_pacientes;
+                document.getElementById('total-consultas').textContent = data.stats.consultas_totales;
+                document.getElementById('edad-promedio').textContent = data.stats.edad_promedio + ' años';
+                document.getElementById('rango-edad').textContent = data.stats.edad_min + ' - ' + data.stats.edad_max + ' años';
+                
+                // Gráfico de género
+                if (data.gender_chart) {
+                    const genderData = JSON.parse(data.gender_chart);
+                    Plotly.newPlot('gender-chart', genderData.data, genderData.layout);
+                }
+                
+                // Gráfico de edad
+                if (data.age_chart) {
+                    const ageData = JSON.parse(data.age_chart);
+                    Plotly.newPlot('age-chart', ageData.data, ageData.layout);
+                }
+                
+                // Gráfico de consultas
+                if (data.consultations_chart) {
+                    const consultationsData = JSON.parse(data.consultations_chart);
+                    Plotly.newPlot('consultations-chart', consultationsData.data, consultationsData.layout);
+                }
+            } else {
+                document.getElementById('stats-content').innerHTML = 
+                    '<div class="alert alert-danger">Error al cargar las estadísticas</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('stats-loading').style.display = 'none';
+            document.getElementById('stats-content').innerHTML = 
+                '<div class="alert alert-danger">Error al cargar las estadísticas</div>';
+        });
+</script>
+{% endblock %}

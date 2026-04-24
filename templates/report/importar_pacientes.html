@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-upload"></i> Importar Pacientes</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle"></i> Instrucciones:</h6>
+                    <ol class="mb-0">
+                        <li>Descarga la plantilla de ejemplo</li>
+                        <li>Completa los datos (Nombre, Apellido Paterno, Sexo, Fecha Nacimiento)</li>
+                        <li>Guarda el archivo en formato .xlsx</li>
+                        <li>Súbelo usando el formulario</li>
+                    </ol>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('report.plantilla_pacientes') }}" class="btn btn-outline-success">
+                        <i class="bi bi-download"></i> Descargar Plantilla
+                    </a>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="archivo" class="form-label">Seleccionar archivo Excel</label>
+                        <input type="file" class="form-control" id="archivo" name="archivo" accept=".xlsx,.xls" required>
+                        <div class="form-text">Formatos aceptados: .xlsx, .xls</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('report.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-upload"></i> Importar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

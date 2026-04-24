@@ -1,0 +1,48 @@
+# Entorno virtual
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+
+# Base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Variables de entorno
+.env
+.flaskenv
+
+# Logs
+*.log
+*.log.*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+*.tar
+*.tar.gz
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de cobertura
+.coverage
+htmlcov/
+
+# Archivos de caché de pip
+.pip-cache/

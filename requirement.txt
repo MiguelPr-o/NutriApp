@@ -1,0 +1,15 @@
+Flask==2.3.3
+Flask-MySQLdb==1.0.1
+Flask-CORS==4.0.0
+mysqlclient==2.2.0
+requests==2.32.3
+geopy==2.4.0          # Para geocodificación con Nominatim
+folium==0.15.0        # Opcional: para generar mapas estáticos
+plotly==5.18.0
+pandas==2.1.0
+numpy==1.24.3
+openpyxl==3.1.2          # Para leer/escribir Excel
+xlwt==1.3.0              # Para Excel antiguo
+xlrd==2.0.1              # Para leer Excel
+reportlab==4.0.9         # Para PDF (opcional)
+# pynani==1.3.1

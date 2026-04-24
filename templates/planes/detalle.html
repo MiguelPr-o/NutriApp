@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-file-earmark-text"></i> 
+        Plan Alimenticio
+    </h1>
+    <div>
+        <!-- Botones SOLO para nutriólogo -->
+        {% if session.user_rol == 'nutriologo' %}
+        <a href="{{ url_for('planes.editar', id=plan.idPlanA) }}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <form action="{{ url_for('planes.eliminar', id=plan.idPlanA) }}" method="POST" style="display: inline;">
+           <!-- Botón que abre el modal -->
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarPlan">
+                <i class="bi bi-trash"></i> Eliminar
+            </button>
+        </form>
+        {% endif %}
+        
+        <!-- Botón de volver (visible para ambos) -->
+        <a href="{{ url_for('consultas.detalle', id=plan.consulta_id) }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Información del Plan</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Calorías diarias:</strong> {{ plan.kcalD }} kcal</p>
+                <p><strong>Vigencia:</strong> {{ plan.fechaI.strftime('%d/%m/%Y') }} - {{ plan.fechaF.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Descripción:</strong></p>
+                <div class="p-3 bg-light rounded">
+                    {{ plan.descripcion }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Información del Paciente</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nombre:</strong> {{ paciente.nombre_completo }}</p>
+                <p><strong>Consulta:</strong> {{ consulta.fechaConsulta.strftime('%d/%m/%Y') }}</p>
+                <a href="{{ url_for('pacientes.detalle', id=paciente.idPaciente) }}" class="btn btn-sm btn-outline-success">
+                    Ver perfil del paciente
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="modalEliminarPlan" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este plan alimenticio?</p>
+                <p class="text-danger mb-0"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <form id="formEliminarPlan" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Cuando se abre el modal, actualizar el action del formulario
+    document.getElementById('modalEliminarPlan').addEventListener('show.bs.modal', function(event) {
+        var form = document.getElementById('formEliminarPlan');
+        var url = "{{ url_for('planes.eliminar', id=plan.idPlanA) }}";
+        form.action = url;
+    });
+</script>
+{% endblock %}

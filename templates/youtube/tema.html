@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><span class="display-4">{{ tema.icono }}</span> {{ tema.nombre }}</h1>
+        <a href="{{ url_for('youtube.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a temas
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {% if videos %}
+        {% for video in videos %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <a href="{{ url_for('youtube.video', video_id=video.id) }}">
+                    <img src="{{ video.miniatura }}" class="card-img-top" alt="{{ video.titulo }}">
+                </a>
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <a href="{{ url_for('youtube.video', video_id=video.id) }}" class="text-decoration-none text-dark">
+                            {{ video.titulo[:60] }}{% if video.titulo|length > 60 %}...{% endif %}
+                        </a>
+                    </h6>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="bi bi-person-circle"></i> {{ video.canal }}<br>
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center">
+            <p class="lead">No se encontraron videos para este tema.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

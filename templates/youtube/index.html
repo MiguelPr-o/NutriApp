@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <p class="lead">Explora videos sobre nutrición, alimentación saludable y más</p>
+    </div>
+</div>
+
+<!-- <div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <form action="{{ url_for('youtube.buscar') }}" method="GET" class="d-flex">
+            <input type="text" name="q" class="form-control form-control-lg me-2" placeholder="Buscar videos de nutrición...">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </form>
+    </div>
+</div> -->
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h3>Temas de Nutrición</h3>
+    </div>
+</div>
+
+<div class="row">
+    {% for tema in temas %}
+    <div class="col-md-3 col-sm-4 mb-3">
+        <a href="{{ url_for('youtube.tema', tema_id=tema.id) }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <!-- <h1 class="display-4 mb-2">{{ tema.icono }}</h1> -->
+                    <h6 class="card-title">{{ tema.nombre }}</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.hover-card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    cursor: pointer;
+}
+</style>
+{% endblock %}

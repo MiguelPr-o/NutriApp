@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">{{ titulo }}</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Consulta del {{ consulta.fechaConsulta.strftime('%d/%m/%Y') }} 
+                    <!-- Paciente: {{ consulta.paciente.nombre_completo if consulta.paciente else '' }} -->
+                </p>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción del Plan</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="5" required>{{ plan.descripcion if plan else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="kcalD" class="form-label">Calorías Diarias</label>
+                            <input type="number" class="form-control" id="kcalD" name="kcalD" 
+                                   value="{{ plan.kcalD if plan else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fechaI" class="form-label">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="fechaI" name="fechaI" 
+                                   value="{{ plan.fechaI.strftime('%Y-%m-%d') if plan and plan.fechaI else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fechaF" class="form-label">Fecha de Fin</label>
+                            <input type="date" class="form-control" id="fechaF" name="fechaF" 
+                                   value="{{ plan.fechaF.strftime('%Y-%m-%d') if plan and plan.fechaF else '' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('consultas.detalle', id=consulta.idConsulta) }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-activity"></i> Mi Evolución</h1>
+        <p class="lead">Paciente: {{ paciente.nombre_completo }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('pacientes.detalle', id=paciente.idPaciente) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Perfil
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Evolución del Peso</h5>
+            </div>
+            <div class="card-body">
+                <div id="weight-chart" style="height: 400px;"></div>
+                <div id="weight-loading" class="text-center py-5">
+                    <div class="spinner-border text-success"></div>
+                    <p>Cargando gráfico...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Evolución del IMC</h5>
+            </div>
+            <div class="card-body">
+                <div id="imc-chart" style="height: 400px;"></div>
+                <div id="imc-loading" class="text-center py-5">
+                    <div class="spinner-border text-success"></div>
+                    <p>Cargando gráfico...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+<script>
+    // Cargar gráfico de peso
+    fetch('/estadisticas/api/weight-chart/{{ paciente.idPaciente }}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('weight-loading').style.display = 'none';
+            if (data.success && data.chart) {
+                const chartData = JSON.parse(data.chart);
+                Plotly.newPlot('weight-chart', chartData.data, chartData.layout);
+            } else {
+                document.getElementById('weight-chart').innerHTML = 
+                    '<p class="text-center text-muted">No hay datos suficientes para mostrar el gráfico</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('weight-loading').style.display = 'none';
+            document.getElementById('weight-chart').innerHTML = 
+                '<p class="text-center text-danger">Error al cargar el gráfico</p>';
+        });
+    
+    // Cargar gráfico de IMC
+    fetch('/estadisticas/api/imc-chart/{{ paciente.idPaciente }}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('imc-loading').style.display = 'none';
+            if (data.success && data.chart) {
+                const chartData = JSON.parse(data.chart);
+                Plotly.newPlot('imc-chart', chartData.data, chartData.layout);
+            } else {
+                document.getElementById('imc-chart').innerHTML = 
+                    '<p class="text-center text-muted">No hay datos suficientes para mostrar el gráfico</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('imc-loading').style.display = 'none';
+            document.getElementById('imc-chart').innerHTML = 
+                '<p class="text-center text-danger">Error al cargar el gráfico</p>';
+        });
+</script>
+{% endblock %}

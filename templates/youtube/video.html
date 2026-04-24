@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+        
+        <div class="ratio ratio-16x9 mb-4">
+            <iframe src="https://www.youtube.com/embed/{{ video.id }}" 
+                    title="{{ video.titulo }}" 
+                    allowfullscreen></iframe>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>{{ video.titulo }}</h4>
+                <p class="text-muted">
+                    <i class="bi bi-person-circle"></i> {{ video.canal }} 
+                </p>
+                <hr>
+               </div>
+        </div>
+    </div>
+</div>
+
+<!-- {% if relacionados %}
+<div class="row">
+    <div class="col-md-12">
+        <h4>Videos relacionados</h4>
+    </div>
+    {% for video in relacionados[:4] %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm">
+            <a href="{{ url_for('youtube.video', video_id=video.id) }}">
+                <img src="{{ video.miniatura }}" class="card-img-top" alt="{{ video.titulo }}">
+            </a>
+            <div class="card-body p-2">
+                <small class="card-title">{{ video.titulo[:50] }}...</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %} -->
+{% endblock %}

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-hospital"></i> Consultorios de Nutrición</h1>
+        <p class="lead">Encuentra consultorios registrados cerca de ti</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('osm.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+        <!-- {% if session.user_rol == 'nutriologo' %}
+        <a href="{{ url_for('osm.registrar_consultorio') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Registrar
+        </a>
+        {% endif %} -->
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Buscar consultorio:</label>
+                    <input type="text" class="form-control" id="searchConsultorio" placeholder="Nombre o dirección">
+                    <button class="btn btn-outline-primary mt-2 w-100" onclick="filtrarConsultorios()">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <label class="form-label">Ordenar por:</label>
+                    <select class="form-select" id="sortBy" onchange="filtrarConsultorios()">
+                        <option value="nombre">Nombre</option>
+                        <option value="distancia">Distancia (si hay ubicación)</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()">
+                    <i class="bi bi-eraser"></i> Limpiar filtros
+                </button>
+            </div>
+            <div class="card-footer bg-light">
+                <div id="consultoriosCount" class="small text-muted text-center"></div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Lista de Consultorios</h5>
+            </div>
+            <div class="card-body" id="consultoriosList" style="max-height: 400px; overflow-y: auto;">
+                {% if consultorios %}
+                    {% for consultorio in consultorios %}
+                    <div class="mb-3 p-2 border-bottom consultorio-item" 
+                         data-id="{{ loop.index }}"
+                         data-nombre="{{ consultorio.nombre }}"
+                         data-lat="{{ consultorio.latitud }}"
+                         data-lon="{{ consultorio.longitud }}">
+                        <h6>{{ consultorio.nombre }}</h6>
+                        <p class="small mb-1">
+                            <i class="bi bi-geo-alt"></i> {{ consultorio.direccion }}<br>
+                            <!-- <i class="bi bi-telephone"></i> {{ consultorio.telefono or 'No disponible' }}<br>
+                            <i class="bi bi-clock"></i> {{ consultorio.horario or 'Horario no especificado' }} -->
+                        </p>
+                        <button class="btn btn-sm btn-outline-primary btn-ver-mapa" 
+                                data-lat="{{ consultorio.latitud }}" 
+                                data-lon="{{ consultorio.longitud }}"
+                                data-nombre="{{ consultorio.nombre }}">
+                            <i class="bi bi-eye"></i> Ver en mapa
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-muted">No hay consultorios registrados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-map"></i> Mapa de Consultorios</h5>
+                <div>
+                    <button class="btn btn-sm btn-light" onclick="mostrarTodos()">
+                        <i class="bi bi-pin-map"></i> Mostrar todos
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let markers = [];
+    let consultoriosData = [];
+    let userLocation = null;
+    
+    // Datos de consultorios desde el backend
+    const consultorios = [
+        {% for c in consultorios %}
+        {
+            id: {{ c.id }},
+            nombre: "{{ c.nombre }}",
+            direccion: "{{ c.direccion }}",
+            lat: {{ c.latitud }},
+            lon: {{ c.longitud }}
+            // telefono: "{{ c.telefono or '' }}",
+            // horario: "{{ c.horario or '' }}"
+        },
+        {% endfor %}
+    ];
+    
+    function initMap() {
+        // Centro por defecto
+        const defaultCenter = [19.4326, -99.1332];
+        
+        map = L.map('map').setView(defaultCenter, 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Obtener ubicación del usuario
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userLocation, 13);
+                    
+                    // Marcador de ubicación del usuario
+                    L.marker(userLocation, {
+                        icon: L.divIcon({
+                            className: 'user-location-marker',
+                            html: '<i class="bi bi-person-circle text-primary" style="font-size: 2rem;"></i>',
+                            iconSize: [30, 30]
+                        })
+                    }).addTo(map).bindPopup('Tu ubicación');
+                },
+                function() {
+                    console.log('No se pudo obtener la ubicación');
+                }
+            );
+        }
+        
+        // Agregar todos los consultorios
+        agregarTodosConsultorios();
+    }
+    
+    function agregarTodosConsultorios() {
+        consultorios.forEach(consultorio => {
+            agregarMarcador(consultorio);
+        });
+        
+        document.getElementById('consultoriosCount').innerHTML = `${consultorios.length} consultorios registrados`;
+        
+        // Ajustar el mapa para mostrar todos los consultorios
+        if (markers.length > 0) {
+            const group = L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
+    
+    function agregarMarcador(consultorio) {
+        const marker = L.marker([consultorio.lat, consultorio.lon]).addTo(map);
+        marker.bindPopup(`
+            <div style="max-width: 250px;">
+                <strong>${consultorio.nombre}</strong><br>
+                <i class="bi bi-geo-alt"></i> ${consultorio.direccion}<br>
+                ${consultorio.telefono ? `<i class="bi bi-telephone"></i> ${consultorio.telefono}<br>` : ''}
+                ${consultorio.horario ? `<i class="bi bi-clock"></i> ${consultorio.horario}` : ''}
+                <hr class="my-1">
+                <a href="https://www.openstreetmap.org/?mlat=${consultorio.lat}&mlon=${consultorio.lon}" target="_blank">
+                    Ver en OpenStreetMap
+                </a>
+            </div>
+        `);
+        
+        markers.push({
+            marker: marker,
+            data: consultorio
+        });
+    }
+    
+    function filtrarConsultorios() {
+        const searchTerm = document.getElementById('searchConsultorio').value.toLowerCase();
+        const sortBy = document.getElementById('sortBy').value;
+        
+        // Filtrar
+        let filtrados = consultorios.filter(c => 
+            c.nombre.toLowerCase().includes(searchTerm) || 
+            c.direccion.toLowerCase().includes(searchTerm)
+        );
+        
+        // Ordenar
+        if (sortBy === 'nombre') {
+            filtrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        } else if (sortBy === 'distancia' && userLocation) {
+            filtrados.forEach(c => {
+                c.distancia = Math.sqrt(
+                    Math.pow(c.lat - userLocation[0], 2) + 
+                    Math.pow(c.lon - userLocation[1], 2)
+                ) * 111; // Aproximación a km
+            });
+            filtrados.sort((a, b) => (a.distancia || 999) - (b.distancia || 999));
+        }
+        
+        // Actualizar lista
+        actualizarLista(filtrados);
+        
+        // Actualizar mapa
+        markers.forEach(m => map.removeLayer(m.marker));
+        markers = [];
+        
+        filtrados.forEach(c => agregarMarcador(c));
+        
+        document.getElementById('consultoriosCount').innerHTML = `${filtrados.length} consultorios encontrados`;
+    }
+    
+    function actualizarLista(consultorios) {
+        const container = document.getElementById('consultoriosList');
+        
+        if (consultorios.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted">No se encontraron consultorios</p>';
+            return;
+        }
+        
+        let html = '';
+        consultorios.forEach(c => {
+            html += `
+                <div class="mb-3 p-2 border-bottom consultorio-item">
+                    <h6>${c.nombre}</h6>
+                    <p class="small mb-1">
+                        <i class="bi bi-geo-alt"></i> ${c.direccion}<br>
+                        <i class="bi bi-telephone"></i> ${c.telefono || 'No disponible'}<br>
+                        <i class="bi bi-clock"></i> ${c.horario || 'Horario no especificado'}
+                        ${c.distancia ? `<br><i class="bi bi-rulers"></i> ${c.distancia.toFixed(1)} km` : ''}
+                    </p>
+                    <button class="btn btn-sm btn-outline-primary btn-ver-mapa" 
+                            data-lat="${c.lat}" 
+                            data-lon="${c.lon}"
+                            data-nombre="${c.nombre}">
+                        <i class="bi bi-eye"></i> Ver en mapa
+                    </button>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Agregar eventos a los botones
+        document.querySelectorAll('.btn-ver-mapa').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lat = parseFloat(this.dataset.lat);
+                const lon = parseFloat(this.dataset.lon);
+                map.setView([lat, lon], 16);
+                
+                // Buscar y abrir el popup del marcador correspondiente
+                const marker = markers.find(m => m.data.lat === lat && m.data.lon === lon);
+                if (marker) {
+                    marker.marker.openPopup();
+                }
+            });
+        });
+    }
+    
+    function limpiarFiltros() {
+        document.getElementById('searchConsultorio').value = '';
+        document.getElementById('sortBy').value = 'nombre';
+        filtrarConsultorios();
+    }
+    
+    function mostrarTodos() {
+        limpiarFiltros();
+        if (markers.length > 0) {
+            const group = L.featureGroup(markers.map(m => m.marker));
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
+    
+    window.onload = initMap;
+</script>
+
+<style>
+    .user-location-marker {
+        background: none;
+        border: none;
+    }
+    .btn-ver-mapa:hover {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

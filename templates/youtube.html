@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Search MVC</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 8px;
+            width: 70%;
+        }
+        button {
+            padding: 8px 15px;
+            background: #cc0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .video {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+        img {
+            width: 220px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>Buscar Videos en YouTube</h2>
+
+<form method="POST">
+    <input type="text" name="query" placeholder="Escribe palabra clave..." required>
+    <button type="submit">Buscar</button>
+</form>
+
+<h3>Resultados para: "{{ query }}"</h3>
+
+{% for v in videos %}
+<div class="video">
+    <h4>{{ v.title }}</h4>
+    <p>Canal: {{ v.channel }}</p>
+    <img src="{{ v.thumbnail }}">
+    <br><br>
+    <a href="https://www.youtube.com/watch?v={{ v.video_id }}" target="_blank">▶ Ver Video</a>
+</div>
+{% endfor %}
+
+</div>
+</body>
+</html>

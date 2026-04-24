@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=clave_secreta_para_docker
+      - DOCKER_ENV=true
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword  # ← Debe coincidir con db
+      - MYSQL_DB=nutricion_db
+    depends_on:
+      db:
+        condition: service_healthy  # ← Espera a que MySQL esté listo
+    volumes:
+      - ./:/app
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # ← MISMA contraseña
+      MYSQL_DATABASE: nutricion_db
+      MYSQL_USER: nutri_user
+      MYSQL_PASSWORD: nutri_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    platform: linux/x86_64
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      timeout: 20s
+      retries: 10
+
+volumes:
+  mysql_data:

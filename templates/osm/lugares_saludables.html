@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-shop"></i> Lugares Saludables Cercanos</h1>
+        <p class="lead">Encuentra restaurantes, gimnasios, parques y más cerca de ti</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('menu') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Panel de filtros -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px; z-index: 1000;">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+            </div>
+            <div class="card-body">
+                <!-- Búsqueda por nombre -->
+                <div class="mb-3">
+                    <label class="form-label">Buscar lugar:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchByName" 
+                               placeholder="Ej: Starbucks, Walmart">
+                        <button class="btn btn-outline-success" onclick="buscarPorNombre()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Categorías - todas seleccionadas por defecto -->
+                <label class="form-label mb-2">Categorías:</label>
+                <div class="row g-2 mb-3" id="categorias">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="restaurante" id="catRestaurante" checked>
+                            <label class="form-check-label" for="catRestaurante">🍽️ Restaurantes</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="cafe" id="catCafe" checked>
+                            <label class="form-check-label" for="catCafe">☕ Cafeterías</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="gimnasio" id="catGimnasio" checked>
+                            <label class="form-check-label" for="catGimnasio">💪 Gimnasios</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="parque" id="catParque" checked>
+                            <label class="form-check-label" for="catParque">🌳 Parques</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="supermercado" id="catSupermercado" checked>
+                            <label class="form-check-label" for="catSupermercado">🛒 Supermercados</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="tienda_organica" id="catOrganica" checked>
+                            <label class="form-check-label" for="catOrganica">🌱 Tiendas orgánicas</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="farmacia" id="catFarmacia" checked>
+                            <label class="form-check-label" for="catFarmacia">💊 Farmacias</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="clinica" id="catClinica" checked>
+                            <label class="form-check-label" for="catClinica">🏥 Clínicas</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="buscarLugares()">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                        <i class="bi bi-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light">
+                <div id="resultadosCount" class="small text-muted text-center">Cargando...</div>
+            </div>
+        </div>
+        
+        <!-- Lista de resultados -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Resultados</h5>
+            </div>
+            <div class="card-body" id="resultsList" style="max-height: 400px; overflow-y: auto;">
+                <div class="text-center my-5">
+                    <div class="spinner-border text-success"></div>
+                    <p class="text-muted mt-3">Obteniendo ubicación...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mapa -->
+    <div class="col-md-9 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-map"></i> Mapa</h5>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 550px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let markers = [];
+    let userLocation = null;
+    
+    // Inicializar mapa
+    function initMap() {
+        map = L.map('map').setView([19.4326, -99.1332], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        obtenerUbicacion();
+    }
+    
+    function obtenerUbicacion() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userLocation, 14);
+                    
+                    // Marcador de ubicación
+                    L.marker(userLocation, {
+                        icon: L.divIcon({
+                            html: '<i class="bi bi-person-circle text-primary" style="font-size: 2rem;"></i>',
+                            iconSize: [30, 30]
+                        })
+                    }).addTo(map).bindPopup('Tu ubicación');
+                    
+                    // Círculo de 2km
+                    L.circle(userLocation, {
+                        color: '#28a745',
+                        fillColor: '#28a745',
+                        fillOpacity: 0.1,
+                        radius: 2000
+                    }).addTo(map);
+                    
+                    // Buscar lugares automáticamente
+                    buscarLugares();
+                },
+                function(error) {
+                    console.log('Error:', error);
+                    userLocation = [19.4326, -99.1332];
+                    map.setView(userLocation, 13);
+                    buscarLugares();
+                }
+            );
+        }
+    }
+    
+    function limpiarFiltros() {
+        const todasChecked = Array.from(document.querySelectorAll('#categorias input')).every(cb => cb.checked);
+        document.querySelectorAll('#categorias input').forEach(cb => cb.checked = !todasChecked);
+        document.getElementById('searchByName').value = '';
+    }
+    
+    function buscarPorNombre() {
+        const query = document.getElementById('searchByName').value.trim();
+        if (!query) {
+            alert('Ingresa un nombre');
+            return;
+        }
+        
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        
+        document.getElementById('resultsList').innerHTML = '<div class="text-center"><div class="spinner-border text-success"></div><p>Buscando...</p></div>';
+        
+        fetch('/osm/api/search-by-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lat: userLocation[0],
+                lon: userLocation[1],
+                query: query,
+                radius: 3000
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results && data.results.length > 0) {
+                mostrarResultados(data.results);
+            } else {
+                document.getElementById('resultsList').innerHTML = '<p class="text-center text-muted">No se encontraron resultados</p>';
+                document.getElementById('resultadosCount').innerHTML = '0 resultados';
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById('resultsList').innerHTML = '<p class="text-center text-danger">Error</p>';
+        });
+    }
+    
+    function buscarLugares() {
+        // Obtener categorías seleccionadas
+        const categorias = [];
+        document.querySelectorAll('#categorias input:checked').forEach(cb => {
+            categorias.push(cb.value);
+        });
+        
+        if (categorias.length === 0) {
+            document.getElementById('resultsList').innerHTML = '<p class="text-center text-muted">Selecciona una categoría</p>';
+            return;
+        }
+        
+        // Limpiar marcadores anteriores
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        
+        document.getElementById('resultsList').innerHTML = '<div class="text-center"><div class="spinner-border text-success"></div><p>Buscando lugares...</p></div>';
+        document.getElementById('resultadosCount').innerHTML = 'Buscando...';
+        
+        // SOLO UNA PETICIÓN con todas las categorías
+        fetch('/osm/api/all-categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lat: userLocation[0],
+                lon: userLocation[1],
+                radius: 2000
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results && data.results.length > 0) {
+                // Filtrar por categorías seleccionadas
+                let filtrados = data.results;
+                if (categorias.length < 8) {
+                    filtrados = data.results.filter(place => 
+                        categorias.includes(place.categoria)
+                    );
+                }
+                mostrarResultados(filtrados);
+            } else {
+                document.getElementById('resultsList').innerHTML = `
+                    <div class="text-center my-5">
+                        <i class="bi bi-emoji-frown fs-1 text-muted"></i>
+                        <p class="text-muted mt-3">No se encontraron lugares</p>
+                    </div>
+                `;
+                document.getElementById('resultadosCount').innerHTML = '0 lugares';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('resultsList').innerHTML = '<p class="text-center text-danger">Error al buscar</p>';
+        });
+    }
+    
+    function mostrarResultados(places) {
+        if (!places || places.length === 0) {
+            document.getElementById('resultsList').innerHTML = '<p class="text-center text-muted">No hay resultados</p>';
+            document.getElementById('resultadosCount').innerHTML = '0 lugares';
+            return;
+        }
+        
+        // Eliminar duplicados
+        const unique = [];
+        const seen = new Set();
+        places.forEach(p => {
+            if (!seen.has(p.id)) {
+                seen.add(p.id);
+                unique.push(p);
+            }
+        });
+        
+        unique.sort((a, b) => (a.distancia || 999) - (b.distancia || 999));
+        
+        // Colores por categoría
+        const colores = {
+            restaurante: '#fd7e14',
+            cafe: '#fd7e14',
+            gimnasio: '#28a745',
+            parque: '#20c997',
+            supermercado: '#007bff',
+            tienda_organica: '#6f42c1',
+            farmacia: '#6f42c1',
+            clinica: '#dc3545'
+        };
+        
+        let html = '';
+        let bounds = [];
+        
+        unique.forEach(place => {
+            const lat = parseFloat(place.lat);
+            const lng = parseFloat(place.lon);
+            if (isNaN(lat) || isNaN(lng)) return;
+            
+            const color = colores[place.categoria] || '#6c757d';
+            
+            const marker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: `<div style="background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <i class="bi bi-geo-alt-fill" style="font-size: 12px;"></i>
+                            </div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28]
+                })
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <strong>${place.nombre || 'Lugar'}</strong><br>
+                <small>${place.direccion || ''}</small><br>
+                ${place.distancia ? `<small>📏 ${place.distancia} km</small>` : ''}
+            `);
+            
+            markers.push(marker);
+            bounds.push([lat, lng]);
+            
+            html += `
+                <div class="mb-2 p-2 border-bottom">
+                    <b>${place.nombre || 'Sin nombre'}</b><br>
+                    <small class="text-muted">${place.distancia ? `📏 ${place.distancia} km • ` : ''}${place.categoria || ''}</small>
+                    <div><small>${place.direccion || ''}</small></div>
+                    <button class="btn btn-sm btn-link p-0 mt-1 text-success" onclick="map.setView([${lat}, ${lng}], 16)">📍 Ver en mapa</button>
+                </div>
+            `;
+        });
+        
+        document.getElementById('resultsList').innerHTML = html;
+        document.getElementById('resultadosCount').innerHTML = `${unique.length} lugares encontrados`;
+        
+        if (bounds.length > 0) {
+            const group = L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
+    
+    window.onload = initMap;
+</script>
+
+<style>
+    .custom-marker div:hover {
+        transform: scale(1.1);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

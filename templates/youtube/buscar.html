@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="bi bi-search"></i> Resultados de búsqueda</h1>
+        {% if query %}
+        <p class="lead">Buscando: "{{ query }}"</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <form action="{{ url_for('youtube.buscar') }}" method="GET" class="d-flex">
+            <input type="text" name="q" class="form-control form-control-lg me-2" value="{{ query }}" placeholder="Buscar videos de nutrición...">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% if videos %}
+        {% for video in videos %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <a href="{{ url_for('youtube.video', video_id=video.id) }}">
+                    <img src="{{ video.miniatura }}" class="card-img-top" alt="{{ video.titulo }}">
+                </a>
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <a href="{{ url_for('youtube.video', video_id=video.id) }}" class="text-decoration-none text-dark">
+                            {{ video.titulo[:60] }}{% if video.titulo|length > 60 %}...{% endif %}
+                        </a>
+                    </h6>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="bi bi-person-circle"></i> {{ video.canal }}<br>
+                            <i class="bi bi-calendar"></i> {{ video.fecha }}
+                        </small>
+                    </p>
+                    <p class="card-text"><small>{{ video.descripcion[:80] }}...</small></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center">
+            <p class="lead">No se encontraron videos. Intenta con otra búsqueda.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

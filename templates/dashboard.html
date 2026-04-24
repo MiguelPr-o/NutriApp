@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Dashboard | Gestión de Nutrición</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+   <!-- ENCABEZADO -->
+   <div class="header">
+      <h2>🥗 Gestión Nutricional</h2>
+      <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+   </div>
+
+   <p class="welcome">
+      Bienvenido, <strong>{{ session.usuario }}</strong>
+   </p>
+
+   <!-- FORMULARIO -->
+   <div class="card">
+      <h3>Registrar paciente / estudiante</h3>
+
+      <form method="post" class="form-grid">
+         <input type="text" name="nombre" placeholder="Nombre" required>
+         <input type="number" name="edad" placeholder="Edad" min="1" required>
+         <input type="text" name="carrera" placeholder="Carrera / Programa" required>
+
+         <button type="submit">Agregar</button>
+      </form>
+   </div>
+
+   <!-- TABLA -->
+   <div class="card">
+      <h3>Listado</h3>
+
+      <table>
+         <thead>
+            <tr>
+               <th>Nombre</th>
+               <th>Edad</th>
+               <th>Carrera</th>
+               <th>Acciones</th>
+            </tr>
+         </thead>
+
+         <tbody>
+            {% for e in estudiantes %}
+            <tr>
+               <td>{{ e.nombre }}</td>
+               <td>{{ e.edad }}</td>
+               <td>{{ e.carrera }}</td>
+               <td>
+                  <button class="btn-edit"
+                     onclick="openModal(
+                        '{{ loop.index0 }}',
+                        '{{ e.nombre }}',
+                        '{{ e.edad }}',
+                        '{{ e.carrera }}'
+                     )">
+                     Editar
+                  </button>
+
+                  <a class="btn-delete"
+                     href="{{ url_for('eliminar', index=loop.index0) }}">
+                     Eliminar
+                  </a>
+               </td>
+            </tr>
+            {% else %}
+            <tr>
+               <td colspan="4" class="empty">
+                  No hay registros aún.
+               </td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   </div>
+
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="editModal" class="modal">
+   <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+
+      <h3>Editar estudiante</h3>
+
+      <form method="post" id="editForm">
+         <input type="text" name="nombre" id="editNombre" required>
+         <input type="number" name="edad" id="editEdad" required>
+         <input type="text" name="carrera" id="editCarrera" required>
+
+         <button type="submit">Guardar cambios</button>
+      </form>
+   </div>
+</div>
+
+<!-- SCRIPT MODAL -->
+<script>
+function openModal(index, nombre, edad, carrera) {
+   document.getElementById("editModal").style.display = "flex";
+
+   document.getElementById("editNombre").value = nombre;
+   document.getElementById("editEdad").value = edad;
+   document.getElementById("editCarrera").value = carrera;
+
+   document.getElementById("editForm").action = "/editar/" + index;
+}
+
+function closeModal() {
+   document.getElementById("editModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-file-earmark-text"></i> Planes Alimenticios</h1>
+</div>
+
+<!-- Filtro de búsqueda por paciente -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-search"></i> Buscar planes</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('planes.lista') }}" class="row g-3">
+            <div class="col-md-8">
+                <input type="text" name="search" class="form-control form-control-lg" 
+                       placeholder="Buscar por nombre del paciente" 
+                       value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+        {% if search %}
+        <div class="mt-2 text-muted">
+            Resultados para: <strong>"{{ search }}"</strong>
+            <a href="{{ url_for('planes.lista') }}" class="btn btn-sm btn-link">Limpiar</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tabla de planes -->
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-success">
+            <tr>
+                <th>Paciente</th>
+                <th>Consulta</th>
+                <th>Calorías</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if planes %}
+                {% for plan in planes %}
+                <tr>
+                    <td>
+                        {{ plan.paciente_nombre }}
+                    </td>
+                    <td>{{ plan.consulta_fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ plan.kcalD }} kcal</td>
+                    <td>{{ plan.fechaI.strftime('%d/%m/%Y') }} - {{ plan.fechaF.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        {% if plan.activo %}
+                        <span class="badge bg-success">Activo</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('planes.detalle', id=plan.idPlanA) }}" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ url_for('planes.editar', id=plan.idPlanA) }}" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal{{ plan.idPlanA }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                
+                <!-- Modal de confirmación -->
+                <div class="modal fade" id="deleteModal{{ plan.idPlanA }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Confirmar eliminación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Estás seguro de eliminar este plan alimenticio?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <form action="{{ url_for('planes.eliminar', id=plan.idPlanA) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        <i class="bi bi-inbox fs-1"></i><br>
+                        {% if search %}
+                            No se encontraron planes para "{{ search }}"
+                        {% else %}
+                            No hay planes alimenticios registrados
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginación -->
+{% if total > per_page %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if page > 1 %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('planes.lista', page=page-1, search=search) }}">
+                Anterior
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for p in range(1, (total // per_page) + 2) %}
+        <li class="page-item {{ 'active' if p == page }}">
+            <a class="page-link" href="{{ url_for('planes.lista', page=p, search=search) }}">
+                {{ p }}
+            </a>
+        </li>
+        {% endfor %}
+        
+        {% if page < (total // per_page) + 1 %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('planes.lista', page=page+1, search=search) }}">
+                Siguiente
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

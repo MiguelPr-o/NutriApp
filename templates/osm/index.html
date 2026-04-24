@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    
+<div class="row mb-4">
+    <div class="col-md-8">
+        <!-- <h1><i class="bi bi-shop"></i> Lugares Saludables Cercanos</h1> -->
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('menu') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- <div class="col-md-3 mb-4"> -->
+        <!-- <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="placeType" class="form-label">Tipo de lugar:</label>
+                    <select class="form-select" id="placeType">
+                        <option value="restaurante">Restaurantes saludables</option>
+                        <option value="cafe">Cafeterías</option>
+                        <option value="gimnasio">Gimnasios</option>
+                        <option value="parque">Parques</option>
+                        <option value="supermercado">Supermercados</option>
+                        <option value="tienda_saludable">Tiendas saludables</option>
+                        <option value="farmacia">Farmacias</option>
+                        <option value="clinica">Clínicas</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="radius" class="form-label">Radio (metros):</label>
+                    <select class="form-select" id="radius">
+                        <option value="500">500 m</option>
+                        <option value="1000" selected>1 km</option>
+                        <option value="2000">2 km</option>
+                        <option value="5000">5 km</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success w-100" onclick="buscarLugares()">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </div> -->
+        
+        <!-- <div class="card shadow-sm mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Resultados</h5>
+            </div>
+            <div class="card-body" id="resultsList" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-center text-muted">Realiza una búsqueda</p>
+            </div>
+        </div> -->
+    <!-- </div> -->
+    
+    <div class="col-md-9 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Mapa de OpenStreetMap</h5>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let markers = [];
+    let userLocation = null;
+    
+    function initMap() {
+        // Centro por defecto
+        const defaultCenter = [19.4326, -99.1332];
+        
+        map = L.map('map').setView(defaultCenter, 13);
+        
+        // Capa de OpenStreetMap [citation:5]
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Obtener ubicación del usuario
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userLocation, 14);
+                    
+                    // Marcador de ubicación del usuario
+                    L.marker(userLocation, {
+                        icon: L.divIcon({
+                            className: 'user-location-marker',
+                            html: '<i class="bi bi-person-circle text-primary" style="font-size: 2rem;"></i>',
+                            iconSize: [30, 30]
+                        })
+                    }).addTo(map).bindPopup('Tu ubicación');
+                },
+                function() {
+                    console.log('No se pudo obtener la ubicación');
+                }
+            );
+        }
+    }
+    
+    function buscarLugares() {
+        if (!userLocation) {
+            alert('No se ha podido obtener tu ubicación. Usando ubicación por defecto.');
+            userLocation = [19.4326, -99.1332];
+        }
+        
+        const placeType = document.getElementById('placeType').value;
+        const radius = parseInt(document.getElementById('radius').value);
+        
+        // Limpiar marcadores anteriores [citation:5]
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        
+        document.getElementById('resultsList').innerHTML = '<div class="text-center"><div class="spinner-border text-success"></div></div>';
+        
+        fetch('/osm/api/nearby', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lat: userLocation[0],
+                lon: userLocation[1],
+                place_type: placeType,
+                radius: radius
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results.length > 0) {
+                mostrarResultados(data.results);
+            } else {
+                document.getElementById('resultsList').innerHTML = 
+                    '<p class="text-center text-muted">No se encontraron lugares</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('resultsList').innerHTML = 
+                '<p class="text-center text-danger">Error en la búsqueda</p>';
+        });
+    }
+    
+    function mostrarResultados(places) {
+        let html = '';
+        
+        places.forEach(place => {
+            // Crear marcador en el mapa
+            const marker = L.marker([place.lat, place.lon]).addTo(map);
+            marker.bindPopup(`
+                <div style="max-width: 200px;">
+                    <h6>${place.nombre}</h6>
+                    <p><small>${place.direccion || ''}</small></p>
+                    ${place.distancia ? `<p><strong>Distancia:</strong> ${place.distancia} km</p>` : ''}
+                </div>
+            `);
+            markers.push(marker);
+            
+            // Agregar a la lista de resultados
+            html += `
+                <div class="mb-2 p-2 border-bottom">
+                    <h6>${place.nombre}</h6>
+                    <p class="small mb-0">
+                        ${place.direccion ? `<i class="bi bi-geo-alt"></i> ${place.direccion}<br>` : ''}
+                        ${place.distancia ? `<i class="bi bi-rulers"></i> ${place.distancia} km` : ''}
+                    </p>
+                </div>
+            `;
+        });
+        
+        document.getElementById('resultsList').innerHTML = html || 
+            '<p class="text-center text-muted">No se encontraron lugares</p>';
+    }
+    
+    window.onload = initMap;
+</script>
+
+<!-- Modal de geocodificación -->
+<div class="modal fade" id="geocodeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Geocodificación con Nominatim</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="address" class="form-label">Dirección:</label>
+                    <input type="text" class="form-control" id="address" placeholder="Ej: Av. Reforma 123, CDMX">
+                </div>
+                <button class="btn btn-primary" onclick="geocodeAddress()">Buscar</button>
+                <div id="geocodeResult" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function geocodeAddress() {
+    const address = document.getElementById('address').value;
+    const resultDiv = document.getElementById('geocodeResult');
+    
+    if (!address) {
+        resultDiv.innerHTML = '<div class="alert alert-warning">Ingresa una dirección</div>';
+        return;
+    }
+    
+    resultDiv.innerHTML = '<div class="text-center"><div class="spinner-border text-primary"></div></div>';
+    
+    fetch('/osm/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: address })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Coordenadas:</strong><br>
+                    Latitud: ${data.result.lat}<br>
+                    Longitud: ${data.result.lon}<br>
+                    <strong>Dirección:</strong> ${data.result.direccion_completa}
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+        }
+    })
+    .catch(error => {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error}</div>`;
+    });
+}
+</script>
+{% endblock %}
