@@ -6,13 +6,8 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 - [Características](#características)
 - [Tecnologías](#tecnologías)
 - [Requisitos Previos](#requisitos-previos)
-- [Instalación Local](#instalación-local)
-- [Ejecutar con Docker](#ejecutar-con-docker)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [APIs Integradas](#apis-integradas)
-- [Credenciales de Prueba](#credenciales-de-prueba)
-- [Capturas de Pantalla](#capturas-de-pantalla)
-- [Autor](#autor)
 
 ## 🚀 Características
 
@@ -47,7 +42,6 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 | Bootstrap | 5.1 | Frontend |
 | Leaflet.js | 1.9 | Mapas |
 | Plotly | 5.18 | Gráficos |
-| Docker | - | Contenerización |
 
 ## 🔌 APIs Integradas
 
@@ -62,11 +56,50 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 
 - Python 3.10 o superior
 - MySQL 8.0 (para desarrollo local)
-- Docker Desktop (opcional)
 
-## 💻 Instalación Local
+## 📁 Estructura del Proyecto
 
-### 1. Clonar el repositorio
-```bash
-git clone https://github.com/tu-usuario/nutriapp.git
-cd nutriapp
+nutriapp/
+│
+├── app.py                    # Punto de entrada
+├── config.py                 # Configuración
+├── requirements.txt          # Dependencias
+├── Dockerfile                # Configuración Docker
+├── docker-compose.yml        # Orquestación
+│
+├── controllers/              # Controladores (rutas)
+│   ├── auth_controller.py
+│   ├── paciente_controller.py
+│   ├── consulta_controller.py
+│   ├── plan_controller.py
+│   ├── youtube_controller.py
+│   ├── osm_controller.py
+│   ├── statistics_controller.py
+│   ├── report_controller.py
+│   └── payment_controller.py
+│
+├── services/                 # Servicios (lógica)
+│   ├── db_service.py
+│   ├── youtube_service.py
+│   ├── osm_service.py
+│   ├── statistics_service.py
+│   ├── report_service.py
+│   └── payment_service.py
+│
+├── models/                   # Modelos de datos
+│   └── models.py
+│
+├── templates/                # Plantillas HTML
+│   ├── base.html
+│   ├── login.html
+│   ├── register.html
+│   ├── menu.html
+│   ├── pacientes/
+│   ├── consultas/
+│   ├── planes/
+│   ├── youtube/
+│   ├── osm/
+│   ├── statistics/
+│   └── report/
+│
+└── static/                   # Archivos estáticos
