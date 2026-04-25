@@ -52,7 +52,8 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 
 ## 📁 Estructura del Proyecto
 
-| nutriapp/
+nutriapp/
+│
 ├── app.py                    # Punto de entrada
 ├── config.py                 # Configuración
 ├── requirements.txt          # Dependencias
