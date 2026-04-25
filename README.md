@@ -2,13 +2,6 @@
 
 Plataforma web para nutriólogos y pacientes con seguimiento de consultas, planes alimenticios, mapas de lugares saludables y videos educativos.
 
-## 📋 Tabla de Contenidos
-- [Características](#características)
-- [Tecnologías](#tecnologías)
-- [Requisitos Previos](#requisitos-previos)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [APIs Integradas](#apis-integradas)
-
 ## 🚀 Características
 
 ### Para Nutriólogos
@@ -59,8 +52,7 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 
 ## 📁 Estructura del Proyecto
 
-nutriapp/
-│
+| nutriapp/
 ├── app.py                    # Punto de entrada
 ├── config.py                 # Configuración
 ├── requirements.txt          # Dependencias
