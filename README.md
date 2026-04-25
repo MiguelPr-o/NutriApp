@@ -52,6 +52,7 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 
 ## 📁 Estructura del Proyecto
 
+```text
 nutriapp/
 │
 ├── app.py                    # Punto de entrada
@@ -96,29 +97,4 @@ nutriapp/
 │   └── report/
 │
 └── static/                   # Archivos estáticos
-
-
----
-
-### 🎨 Leyenda de iconos
-
-| Icono | Significado |
-|-------|-------------|
-| 🐍 | Python |
-| ⚙️ | Configuración |
-| 📦 | Dependencias |
-| 🐳 | Docker |
-| 🔐 | Autenticación |
-| 👥 | Pacientes |
-| 📋 | Consultas/Planes |
-| 🎬 | YouTube |
-| 🗺️ | Mapas/OpenStreetMap |
-| 📊 | Estadísticas |
-| 📁 | Reportes |
-| 💳 | Pagos |
-| 🗄️ | Base de datos |
-| 🧠 | Modelos |
-| 🏠 | Plantilla base |
-| 🔑 | Login |
-| 📝 | Registro |
-| 🍽️ | Menú principal |
+```
