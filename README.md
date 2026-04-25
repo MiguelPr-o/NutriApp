@@ -55,13 +55,13 @@ Plataforma web para nutriólogos y pacientes con seguimiento de consultas, plane
 ```text
 nutriapp/
 │
-├── app.py                    # Punto de entrada
-├── config.py                 # Configuración
-├── requirements.txt          # Dependencias
-├── Dockerfile                # Configuración Docker
-├── docker-compose.yml        # Orquestación
+├── app.py                    
+├── config.py               
+├── requirements.txt          
+├── Dockerfile                
+├── docker-compose.yml       
 │
-├── controllers/              # Controladores (rutas)
+├── controllers/             
 │   ├── auth_controller.py
 │   ├── paciente_controller.py
 │   ├── consulta_controller.py
@@ -72,7 +72,7 @@ nutriapp/
 │   ├── report_controller.py
 │   └── payment_controller.py
 │
-├── services/                 # Servicios (lógica)
+├── services/              
 │   ├── db_service.py
 │   ├── youtube_service.py
 │   ├── osm_service.py
@@ -80,10 +80,10 @@ nutriapp/
 │   ├── report_service.py
 │   └── payment_service.py
 │
-├── models/                   # Modelos de datos
+├── models/                   
 │   └── models.py
 │
-├── templates/                # Plantillas HTML
+├── templates/                
 │   ├── base.html
 │   ├── login.html
 │   ├── register.html
@@ -96,5 +96,5 @@ nutriapp/
 │   ├── statistics/
 │   └── report/
 │
-└── static/                   # Archivos estáticos
+└── static/                   
 ```
